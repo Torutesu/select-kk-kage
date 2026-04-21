@@ -6,7 +6,8 @@ pipeline の pytest が参照する最小 capture bundle 群。
 
 - **すべてコミットする。** pipeline のテストはネットワーク無し・再現可能に走らせる。
 - **最小化する。** フルサイズの bundle は数 MB 行くが、テストに必要なのは HAR + events +
-  先頭数行のスナップショットと数枚のスクリーンショット。目標 **500 KB / fixture 以下**。
+  各 URL 最終 snapshot(内部配列は truncate)と数枚のスクリーンショット。
+  目標 **550 KB / fixture 以下**(URL が多いほど strings table が増えるので緩め)。
 - **生成は必ず `make_minimal.py` で。** 手作業で切り詰めないこと。切り出しロジックを
   再現可能に残すため。
 
