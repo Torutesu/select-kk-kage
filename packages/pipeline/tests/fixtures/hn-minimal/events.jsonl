@@ -1,7 +1,7 @@
-{"id":"cc9954cc-61bb-4ccd-a575-b1a1d2197524","type":"request","timestamp":526,"url":"https://news.ycombinator.com/","method":"GET"}
-{"id":"40c00737-8925-479b-b490-9a749029d516","type":"response","timestamp":935,"url":"https://news.ycombinator.com/","status":200}
-{"id":"a82fa40b-c4b9-447c-bdc7-5b65f93b0ec5","type":"navigation","timestamp":939,"url":"https://news.ycombinator.com/"}
-{"id":"870fca5a-aa12-47fa-b94f-79b33892c4d9","type":"request","timestamp":1175,"url":"https://news.ycombinator.com/newest","method":"GET"}
-{"id":"af0fdd87-b7ab-4fb2-af0c-17f5bb4f1d58","type":"response","timestamp":1312,"url":"https://news.ycombinator.com/newest","status":429}
-{"id":"897e93c3-f723-45be-8696-533d48580a9f","type":"navigation","timestamp":1313,"url":"https://news.ycombinator.com/newest"}
-{"id":"1abc6b84-a8eb-4cc9-85ae-e0fce25c295c","type":"click","timestamp":1342,"selector":"a","target":{"tagName":"A","text":"new","bbox":{"x":244.796875,"y":12,"width":27.296875,"height":16}},"screenshotPath":"screenshots/1abc6b84-a8eb-4cc9-85ae-e0fce25c295c.png"}
+{"id":"b6ecc056-41b9-4784-a667-5a73316d0b92","type":"request","timestamp":494,"url":"https://news.ycombinator.com/","method":"GET"}
+{"id":"a756b9a1-f16e-4014-8ed9-3bfda236cceb","type":"response","timestamp":915,"url":"https://news.ycombinator.com/","status":200}
+{"id":"d68e1f86-db1f-4592-acb3-0335d6916d96","type":"navigation","timestamp":920,"url":"https://news.ycombinator.com/"}
+{"id":"7910490b-7f8f-47a4-a79a-1410a961e86a","type":"request","timestamp":1262,"url":"https://news.ycombinator.com/newest","method":"GET"}
+{"id":"18de581f-7c0c-4158-942a-f2eff0f973ae","type":"response","timestamp":1379,"url":"https://news.ycombinator.com/newest","status":200}
+{"id":"2a16fc71-8351-4194-b01b-5f034ab00a03","type":"navigation","timestamp":1381,"url":"https://news.ycombinator.com/newest"}
+{"id":"e53927fa-b39b-4007-aec3-e40b325a0c05","type":"click","timestamp":1441,"selector":"a","target":{"tagName":"A","text":"new","bbox":{"x":244.796875,"y":12,"width":27.296875,"height":16}},"screenshotPath":"screenshots/e53927fa-b39b-4007-aec3-e40b325a0c05.png"}

@@ -231,6 +231,13 @@ export class Recorder {
         type: "navigation",
         url: frame.url(),
       });
+      // DOMContentLoaded を待ってから snapshot を取る
+      // (framenavigated は URL 変化直後なので、待たないと #document 1 ノードだけの空スナップが取れる)
+      try {
+        await this.page?.waitForLoadState("domcontentloaded", { timeout: 5000 });
+      } catch {
+        // timeout してもベストエフォートで snapshot を試みる
+      }
       await this.captureDomAndA11y();
     });
 
