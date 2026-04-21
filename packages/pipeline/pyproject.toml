@@ -1,0 +1,80 @@
+[project]
+name = "kage-pipeline"
+version = "0.0.1"
+description = "KAGE Pipeline - convert capture bundles into IR"
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "UNLICENSED" }
+authors = [{ name = "Select KK / SLCT" }]
+
+dependencies = [
+    # Core
+    "pydantic>=2.8,<3.0",
+    "httpx>=0.27,<0.28",
+    "python-dotenv>=1.0,<2.0",
+    "rich>=13.8,<14.0",
+    # LLM (Day 4 で使用開始、pin 完全固定)
+    "anthropic==0.96.0",
+    # HTML / DOM 解析
+    "beautifulsoup4>=4.12,<5.0",
+    "lxml>=5.3,<6.0",
+    # 動画フレーム抽出 (Day 4-5 で使用)
+    "av>=12.3,<14.0",
+    # Capture 側の型参照用 (Day 4-5 で使用)
+    "playwright>=1.48,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-asyncio>=0.24,<1.0",
+    "mypy>=1.11,<2.0",
+    "ruff>=0.6,<1.0",
+]
+
+[project.scripts]
+kage-pipeline = "kage_pipeline.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kage_pipeline"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-asyncio>=0.24,<1.0",
+    "mypy>=1.11,<2.0",
+    "ruff>=0.6,<1.0",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+# HAR / snapshot 等の任意 JSON は dict[str, Any] で受ける前提で許容
+disallow_any_explicit = false
+disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = "av.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "bs4.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "TCH"]
+ignore = ["E501"]

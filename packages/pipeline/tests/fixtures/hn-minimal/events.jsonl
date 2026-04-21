@@ -1,0 +1,7 @@
+{"id":"cc9954cc-61bb-4ccd-a575-b1a1d2197524","type":"request","timestamp":526,"url":"https://news.ycombinator.com/","method":"GET"}
+{"id":"40c00737-8925-479b-b490-9a749029d516","type":"response","timestamp":935,"url":"https://news.ycombinator.com/","status":200}
+{"id":"a82fa40b-c4b9-447c-bdc7-5b65f93b0ec5","type":"navigation","timestamp":939,"url":"https://news.ycombinator.com/"}
+{"id":"870fca5a-aa12-47fa-b94f-79b33892c4d9","type":"request","timestamp":1175,"url":"https://news.ycombinator.com/newest","method":"GET"}
+{"id":"af0fdd87-b7ab-4fb2-af0c-17f5bb4f1d58","type":"response","timestamp":1312,"url":"https://news.ycombinator.com/newest","status":429}
+{"id":"897e93c3-f723-45be-8696-533d48580a9f","type":"navigation","timestamp":1313,"url":"https://news.ycombinator.com/newest"}
+{"id":"1abc6b84-a8eb-4cc9-85ae-e0fce25c295c","type":"click","timestamp":1342,"selector":"a","target":{"tagName":"A","text":"new","bbox":{"x":244.796875,"y":12,"width":27.296875,"height":16}},"screenshotPath":"screenshots/1abc6b84-a8eb-4cc9-85ae-e0fce25c295c.png"}

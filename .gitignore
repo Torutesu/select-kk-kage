@@ -7,6 +7,17 @@ dist/
 # KAGE runs (録画データはコミットしない)
 runs/
 *.kage.zip
+# pipeline のテスト fixture は最小化版を明示的に許可
+!packages/pipeline/tests/fixtures/*
+!packages/pipeline/tests/fixtures/**
+
+# Python / uv
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # env
 .env
