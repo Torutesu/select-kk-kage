@@ -77,6 +77,11 @@ export class Recorder {
 
   constructor(private readonly opts: RecorderOptions) {}
 
+  /** Read-only access to the underlying page after start(). Used for scripted smoke tests. */
+  getPage(): Page | null {
+    return this.page;
+  }
+
   async start(): Promise<void> {
     await fs.mkdir(this.opts.runDir, { recursive: true });
     await fs.mkdir(path.join(this.opts.runDir, "screenshots"), { recursive: true });
@@ -122,12 +127,28 @@ export class Recorder {
 
     this.setupEventListeners();
 
+    // ブラウザから飛んでくるカスタムイベントを受ける
+    // exposeFunction は navigation を越えて維持される
+    await this.page.exposeFunction(
+      "__kage_receive",
+      async (ev: { type: string; detail: Record<string, unknown> }) => {
+        await this.recordUserEvent(ev.type, ev.detail);
+      }
+    );
+
     // ブラウザ内に記録ヘルパーを注入(クリック検知等)
+    // addInitScript は navigation ごとに再実行されるため、
+    // リスナもここに同梱しないと遷移後に捕捉できない
     await this.page.addInitScript(() => {
       // @ts-expect-error - injected into page context
       window.__kageRecord = (event: { type: string; detail: unknown }) => {
         window.dispatchEvent(new CustomEvent("__kage_event", { detail: event }));
       };
+
+      window.addEventListener("__kage_event", (e) => {
+        // @ts-expect-error - exposed via exposeFunction
+        window.__kage_receive((e as CustomEvent).detail);
+      });
 
       // すべてのクリックを記録
       document.addEventListener(
@@ -201,20 +222,6 @@ export class Recorder {
           .join("");
         return `${el.tagName.toLowerCase()}${cls}`;
       }
-    });
-
-    // ブラウザから飛んでくるカスタムイベントを受ける
-    await this.page.exposeFunction(
-      "__kage_receive",
-      async (ev: { type: string; detail: Record<string, unknown> }) => {
-        await this.recordUserEvent(ev.type, ev.detail);
-      }
-    );
-    await this.page.evaluate(() => {
-      window.addEventListener("__kage_event", (e) => {
-        // @ts-expect-error - exposed
-        window.__kage_receive((e as CustomEvent).detail);
-      });
     });
 
     // Navigation
