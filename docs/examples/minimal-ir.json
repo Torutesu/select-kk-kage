@@ -265,7 +265,7 @@
   ],
   "openQuestions": [
     {
-      "id": "oooo1111-1111-1111-1111-111111111111",
+      "id": "cccc1111-1111-1111-1111-111111111111",
       "question": "Project.status の enum 値(draft/active/archived と推測したが未確定)",
       "relatedIds": ["99992222-2222-2222-2222-222222222222"],
       "severity": "warning"
