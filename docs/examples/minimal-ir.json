@@ -1,0 +1,274 @@
+{
+  "version": "1.0.0",
+  "source": {
+    "targetUrl": "https://example-saas.com",
+    "recordedAt": "2026-04-21T00:00:00.000Z",
+    "durationSeconds": 42,
+    "captureTool": "kage-capture"
+  },
+  "projectName": "example-clone",
+  "designTokens": {
+    "colors": {
+      "background": "#0A0A0A",
+      "foreground": "#FAFAFA",
+      "primary": "#C8A96E",
+      "muted": "#2A2A2A"
+    },
+    "fontFamilies": ["Inter", "DM Sans"],
+    "fontSizes": [12, 14, 16, 20, 24, 32],
+    "spacing": [4, 8, 12, 16, 24, 32],
+    "borderRadius": [4, 8, 12]
+  },
+  "hasAuth": true,
+  "screens": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "slug": "login",
+      "route": "/login",
+      "originalUrl": "https://example-saas.com/login",
+      "requiresAuth": false,
+      "initialDataBindingIds": [],
+      "confidence": "high",
+      "root": {
+        "id": "aaaa1111-1111-1111-1111-111111111111",
+        "kind": "Container",
+        "props": { "className": "flex min-h-screen items-center justify-center" },
+        "dataBindingIds": [],
+        "actionIds": [],
+        "confidence": "high",
+        "children": [
+          {
+            "id": "aaaa2222-2222-2222-2222-222222222222",
+            "kind": "Card",
+            "props": { "className": "w-[400px] p-6" },
+            "dataBindingIds": [],
+            "actionIds": [],
+            "confidence": "high",
+            "children": [
+              {
+                "id": "aaaa3333-3333-3333-3333-333333333333",
+                "kind": "Heading",
+                "text": "Sign in",
+                "props": { "level": 1 },
+                "dataBindingIds": [],
+                "actionIds": [],
+                "confidence": "high",
+                "children": []
+              },
+              {
+                "id": "aaaa4444-4444-4444-4444-444444444444",
+                "kind": "Form",
+                "props": {},
+                "dataBindingIds": [],
+                "actionIds": ["dddd1111-1111-1111-1111-111111111111"],
+                "confidence": "high",
+                "children": [
+                  {
+                    "id": "aaaa5555-5555-5555-5555-555555555555",
+                    "kind": "Input",
+                    "props": { "name": "email", "type": "email", "placeholder": "Email" },
+                    "dataBindingIds": [],
+                    "actionIds": [],
+                    "confidence": "high",
+                    "children": []
+                  },
+                  {
+                    "id": "aaaa6666-6666-6666-6666-666666666666",
+                    "kind": "Input",
+                    "props": { "name": "password", "type": "password", "placeholder": "Password" },
+                    "dataBindingIds": [],
+                    "actionIds": [],
+                    "confidence": "high",
+                    "children": []
+                  },
+                  {
+                    "id": "aaaa7777-7777-7777-7777-777777777777",
+                    "kind": "Button",
+                    "text": "Sign in",
+                    "variant": "default",
+                    "props": { "type": "submit" },
+                    "dataBindingIds": [],
+                    "actionIds": ["dddd1111-1111-1111-1111-111111111111"],
+                    "confidence": "high",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "slug": "dashboard",
+      "route": "/dashboard",
+      "originalUrl": "https://example-saas.com/dashboard",
+      "requiresAuth": true,
+      "initialDataBindingIds": ["eeee1111-1111-1111-1111-111111111111"],
+      "confidence": "high",
+      "root": {
+        "id": "bbbb1111-1111-1111-1111-111111111111",
+        "kind": "Container",
+        "props": { "className": "flex h-screen" },
+        "dataBindingIds": [],
+        "actionIds": [],
+        "confidence": "high",
+        "children": [
+          {
+            "id": "bbbb2222-2222-2222-2222-222222222222",
+            "kind": "Sidebar",
+            "props": {},
+            "dataBindingIds": [],
+            "actionIds": [],
+            "confidence": "high",
+            "children": []
+          },
+          {
+            "id": "bbbb3333-3333-3333-3333-333333333333",
+            "kind": "Stack",
+            "props": { "className": "flex-1 p-8" },
+            "dataBindingIds": [],
+            "actionIds": [],
+            "confidence": "high",
+            "children": [
+              {
+                "id": "bbbb4444-4444-4444-4444-444444444444",
+                "kind": "Heading",
+                "text": "Projects",
+                "props": { "level": 1 },
+                "dataBindingIds": [],
+                "actionIds": [],
+                "confidence": "high",
+                "children": []
+              },
+              {
+                "id": "bbbb5555-5555-5555-5555-555555555555",
+                "kind": "DataTable",
+                "props": { "columns": ["name", "status", "updated"] },
+                "dataBindingIds": ["eeee1111-1111-1111-1111-111111111111"],
+                "actionIds": [],
+                "confidence": "medium",
+                "evidence": [
+                  "Observed table with 3 columns in dashboard",
+                  "Rows populated from /api/projects (HAR)"
+                ],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "ffff1111-1111-1111-1111-111111111111",
+      "from": "11111111-1111-1111-1111-111111111111",
+      "to": "22222222-2222-2222-2222-222222222222",
+      "trigger": {
+        "type": "api_success",
+        "actionId": "dddd1111-1111-1111-1111-111111111111"
+      },
+      "actionIds": ["dddd1111-1111-1111-1111-111111111111"],
+      "updatesSharedStateIds": ["cccc1111-1111-1111-1111-111111111111"],
+      "confidence": "high"
+    }
+  ],
+  "sharedStates": [
+    {
+      "id": "cccc1111-1111-1111-1111-111111111111",
+      "name": "currentUser",
+      "type": "User | null",
+      "initialValue": "null",
+      "persistence": "localStorage",
+      "confidence": "medium",
+      "evidence": [
+        "POST /api/auth/login returned user object",
+        "Dashboard shows user email in header"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "99991111-1111-1111-1111-111111111111",
+      "name": "User",
+      "confidence": "high",
+      "evidence": [
+        "Login response includes {id, email}",
+        "Dashboard header shows user email"
+      ],
+      "questions": [],
+      "fields": [
+        { "name": "id", "type": "String", "isId": true, "optional": false, "unique": true, "isCreatedAt": false, "isUpdatedAt": false, "evidence": ["Present in login response"] },
+        { "name": "email", "type": "String", "optional": false, "unique": true, "isId": false, "isCreatedAt": false, "isUpdatedAt": false, "evidence": ["Present in login response"] },
+        { "name": "name", "type": "String", "optional": true, "unique": false, "isId": false, "isCreatedAt": false, "isUpdatedAt": false, "evidence": ["Shown in sidebar"] },
+        { "name": "createdAt", "type": "DateTime", "isCreatedAt": true, "optional": false, "unique": false, "isId": false, "isUpdatedAt": false, "evidence": [] }
+      ]
+    },
+    {
+      "id": "99992222-2222-2222-2222-222222222222",
+      "name": "Project",
+      "confidence": "medium",
+      "evidence": [
+        "GET /api/projects returns array",
+        "Dashboard table has 3 columns: name, status, updated"
+      ],
+      "questions": [
+        "statusの取りうる値は? (draft/active/archived?)",
+        "Projectは誰かに所属する? ownerId が必要?"
+      ],
+      "fields": [
+        { "name": "id", "type": "String", "isId": true, "optional": false, "unique": true, "isCreatedAt": false, "isUpdatedAt": false, "evidence": [] },
+        { "name": "name", "type": "String", "optional": false, "unique": false, "isId": false, "isCreatedAt": false, "isUpdatedAt": false, "evidence": [] },
+        { "name": "status", "type": "Enum", "enumValues": ["draft", "active", "archived"], "optional": false, "unique": false, "isId": false, "isCreatedAt": false, "isUpdatedAt": false, "evidence": ["Status badge observed with colored variants"] },
+        { "name": "updatedAt", "type": "DateTime", "isUpdatedAt": true, "optional": false, "unique": false, "isId": false, "isCreatedAt": false, "evidence": [] }
+      ]
+    }
+  ],
+  "apiActions": [
+    {
+      "id": "dddd1111-1111-1111-1111-111111111111",
+      "name": "auth.login",
+      "kind": "mutation",
+      "observed": {
+        "method": "POST",
+        "urlPattern": "/api/auth/login",
+        "sampleRequest": { "email": "user@example.com", "password": "***" },
+        "sampleResponse": { "user": { "id": "u_1", "email": "user@example.com" }, "token": "..." }
+      },
+      "entityIds": ["99991111-1111-1111-1111-111111111111"],
+      "confidence": "high"
+    },
+    {
+      "id": "dddd2222-2222-2222-2222-222222222222",
+      "name": "projects.list",
+      "kind": "query",
+      "observed": {
+        "method": "GET",
+        "urlPattern": "/api/projects",
+        "sampleResponse": [
+          { "id": "p_1", "name": "Alpha", "status": "active", "updatedAt": "2026-04-20T00:00:00Z" }
+        ]
+      },
+      "entityIds": ["99992222-2222-2222-2222-222222222222"],
+      "confidence": "high"
+    }
+  ],
+  "dataBindings": [
+    {
+      "id": "eeee1111-1111-1111-1111-111111111111",
+      "apiActionId": "dddd2222-2222-2222-2222-222222222222",
+      "variableName": "projects",
+      "queryKey": ["projects", "list"]
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "oooo1111-1111-1111-1111-111111111111",
+      "question": "Project.status の enum 値(draft/active/archived と推測したが未確定)",
+      "relatedIds": ["99992222-2222-2222-2222-222222222222"],
+      "severity": "warning"
+    }
+  ]
+}

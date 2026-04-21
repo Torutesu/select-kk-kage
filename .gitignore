@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.next/
+.turbo/
+*.log
+
+# KAGE runs (録画データはコミットしない)
+runs/
+*.kage.zip
+
+# env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/

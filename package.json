@@ -1,0 +1,24 @@
+{
+  "name": "kage",
+  "version": "0.0.1",
+  "private": true,
+  "description": "KAGE - SLCT internal tool: record SaaS, generate Next.js clone",
+  "packageManager": "pnpm@9.12.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

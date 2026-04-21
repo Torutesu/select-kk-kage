@@ -1,0 +1,29 @@
+{
+  "name": "@kage/capture",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "kage-capture": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@kage/ir": "workspace:*",
+    "playwright": "^1.48.0",
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "adm-zip": "^0.5.16"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "@types/adm-zip": "^0.5.5",
+    "tsx": "^4.19.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}
