@@ -13,8 +13,10 @@ dependencies = [
     "httpx>=0.27,<0.28",
     "python-dotenv>=1.0,<2.0",
     "rich>=13.8,<14.0",
-    # LLM (Day 4 で使用開始、pin 完全固定)
+    # LLM (Day 4 で import 開始、pin 完全固定)
     "anthropic==0.96.0",
+    "tenacity>=9.0,<10.0",
+    "jinja2>=3.1,<4.0",
     # HTML / DOM 解析
     "beautifulsoup4>=4.12,<5.0",
     "lxml>=5.3,<6.0",
@@ -28,6 +30,8 @@ dependencies = [
 dev = [
     "pytest>=8.3,<9.0",
     "pytest-asyncio>=0.24,<1.0",
+    "vcrpy>=6.0,<7.0",
+    "pytest-vcr>=1.0,<2.0",
     "mypy>=1.11,<2.0",
     "ruff>=0.6,<1.0",
 ]
@@ -46,6 +50,8 @@ packages = ["src/kage_pipeline"]
 dev = [
     "pytest>=8.3,<9.0",
     "pytest-asyncio>=0.24,<1.0",
+    "vcrpy>=6.0,<7.0",
+    "pytest-vcr>=1.0,<2.0",
     "mypy>=1.11,<2.0",
     "ruff>=0.6,<1.0",
 ]
@@ -65,6 +71,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "bs4.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "vcr.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

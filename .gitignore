@@ -19,6 +19,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# LLM output / cost logs (生成物、再現不可なので commit しない)
+.kage-logs/
+
 # env
 .env
 .env.local
