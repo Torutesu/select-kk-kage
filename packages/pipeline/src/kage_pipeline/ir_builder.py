@@ -14,6 +14,7 @@ from typing import Any
 from .bundle import CaptureBundle, read_jsonl
 from .components.api_extractor import extract_api_actions
 from .components.screen_extractor import extract_screens
+from .components.transition_inferer import infer_transitions
 from .integrity import validate_ir_integrity
 from .ir_schema import IR, IRSource
 
@@ -43,6 +44,7 @@ def build_ir(bundle: CaptureBundle, project_name: str) -> IR:
         dom_snapshots=dom_snapshots,
         viewport_width=_DEFAULT_VIEWPORT_WIDTH,
     )
+    transitions, inferred_shared_states = infer_transitions(events, screens, api_actions)
 
     metadata = bundle.metadata
     duration_ms = float(metadata.get("durationMs") or 0)
@@ -61,7 +63,9 @@ def build_ir(bundle: CaptureBundle, project_name: str) -> IR:
         projectName=project_name,
         screens=screens,
         apiActions=api_actions,
-        hasAuth=False,
+        transitions=transitions,
+        sharedStates=inferred_shared_states,
+        hasAuth=bool(inferred_shared_states),  # currentUser が作られたなら auth あり
     )
 
     errors = validate_ir_integrity(ir)

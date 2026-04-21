@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 from ..ir_schema import Component, Screen
 from ..utils.dom_parse import parse_dom_snapshot
+from ..utils.url_key import url_key
 from .component_tree import build_component_tree_sync
 
 
@@ -41,13 +42,13 @@ def _placeholder_root() -> Component:
     return Component(id=uuid.uuid4(), kind="Container", confidence="low")
 
 
-def _pick_snapshot_for_url(
-    snapshots_by_url: dict[str, list[dict[str, Any]]],
-    url: str,
+def _pick_snapshot_for_key(
+    snapshots_by_key: dict[str, list[dict[str, Any]]],
+    key: str,
 ) -> dict[str, Any] | None:
-    """URL に対応する最も展開された snapshot を返す。同 URL なら最後のものを優先。"""
-    if url in snapshots_by_url and snapshots_by_url[url]:
-        return snapshots_by_url[url][-1]
+    """同じ URL キーに属する snapshot 群から、最も最後(= 最もページが展開された)を返す。"""
+    if key in snapshots_by_key and snapshots_by_key[key]:
+        return snapshots_by_key[key][-1]
     return None
 
 
@@ -61,17 +62,18 @@ def extract_screens(
     navigation イベントから Screen を作成し、URL に対応する DOMSnapshot から
     root Component ツリーを生成する。
 
-    dom_snapshots 未指定 or 対応 snapshot 無しのときは placeholder Container。
+    URL の query / fragment は dedupe から除外する(同じ論理画面を 1 Screen にまとめる)。
+    URL key 計算は utils.url_key.url_key() を参照。
     """
-    # URL -> snapshot 一覧 (順序保持)
-    snapshots_by_url: dict[str, list[dict[str, Any]]] = {}
+    # 正規化 URL key -> snapshot 一覧 (順序保持)
+    snapshots_by_key: dict[str, list[dict[str, Any]]] = {}
     for snap in dom_snapshots or []:
         url = snap.get("url")
         if not isinstance(url, str) or not url:
             continue
-        snapshots_by_url.setdefault(url, []).append(snap)
+        snapshots_by_key.setdefault(url_key(url), []).append(snap)
 
-    seen_urls: set[str] = set()
+    seen_keys: set[str] = set()
     screens: list[Screen] = []
 
     for ev in events:
@@ -80,12 +82,13 @@ def extract_screens(
         url = ev.get("url")
         if not isinstance(url, str) or not url:
             continue
-        if url in seen_urls:
+        key = url_key(url)
+        if key in seen_keys:
             continue
-        seen_urls.add(url)
+        seen_keys.add(key)
 
         root: Component
-        picked = _pick_snapshot_for_url(snapshots_by_url, url)
+        picked = _pick_snapshot_for_key(snapshots_by_key, key)
         if picked is not None:
             snapshot_obj = picked.get("snapshot")
             if isinstance(snapshot_obj, dict):
