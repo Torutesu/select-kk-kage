@@ -259,6 +259,158 @@ async def test_questions_propagated_to_entity() -> None:
 
 
 @pytest.mark.asyncio
+async def test_pending_relation_downgrades_to_int_with_auto_question() -> None:
+    """
+    hasAuth=True, userId フィールドあり, User cluster なし。
+    LLM は __pending_User__ を返す convention に従う。
+    → 後処理で Int にダウングレード、auto question が追加される。
+    """
+    actions = [
+        _api(
+            "projects.list",
+            "GET",
+            "/api/projects",
+            [{"id": 1, "title": "p", "ownerId": 42}],
+        )
+    ]
+    proposals = [
+        EntityProposal(
+            clusterId="cluster_0",
+            name="Project",
+            confidence="medium",
+            fields=[
+                EntityFieldProposal(name="id", type="Int", isId=True),
+                EntityFieldProposal(name="title", type="String"),
+                EntityFieldProposal(
+                    name="ownerId",
+                    type="Relation",
+                    relationTargetName="__pending_User__",
+                ),
+            ],
+            questions=[],
+        )
+    ]
+    client = _FakeClient(proposals)
+    entities, _ = await infer_entities(
+        api_actions=actions,
+        screens=[],
+        has_auth=True,
+        llm_client=client,  # type: ignore[arg-type]
+    )
+    assert len(entities) == 1
+    proj = entities[0]
+    owner = next(f for f in proj.fields if f.name == "ownerId")
+    # Q2=A: 常に Int に落とす
+    assert owner.type == "Int"
+    assert owner.relationTargetEntityId is None
+    # 自動 question が追加されている
+    assert any("ownerId" in q and "User" in q for q in proj.questions)
+
+
+@pytest.mark.asyncio
+async def test_pending_relation_with_existing_target_entity_resolves_normally() -> None:
+    """
+    hasAuth=True, User cluster もあり、userId フィールドあり。
+    LLM が relationTargetName="User"(__pending_ 無し)を返せば通常 Relation 化。
+    """
+    actions = [
+        _api("u.list", "GET", "/api/users", [{"id": 1, "email": "a@b.c"}]),
+        _api("p.list", "GET", "/api/projects", [{"id": 1, "ownerId": 1}]),
+    ]
+    proposals = [
+        EntityProposal(
+            clusterId="cluster_0",
+            name="User",
+            confidence="high",
+            fields=[
+                EntityFieldProposal(name="id", type="Int", isId=True),
+                EntityFieldProposal(name="email", type="String", unique=True),
+            ],
+        ),
+        EntityProposal(
+            clusterId="cluster_1",
+            name="Project",
+            confidence="high",
+            fields=[
+                EntityFieldProposal(name="id", type="Int", isId=True),
+                EntityFieldProposal(
+                    name="ownerId", type="Relation", relationTargetName="User"
+                ),
+            ],
+        ),
+    ]
+    client = _FakeClient(proposals)
+    entities, _ = await infer_entities(
+        api_actions=actions,
+        screens=[],
+        has_auth=True,
+        llm_client=client,  # type: ignore[arg-type]
+    )
+    by_name = {e.name: e for e in entities}
+    user = by_name["User"]
+    project = by_name["Project"]
+    owner = next(f for f in project.fields if f.name == "ownerId")
+    # 通常 Relation として解決
+    assert owner.type == "Relation"
+    assert str(owner.relationTargetEntityId) == str(user.id)
+    # 自動 question は付かない
+    assert not any("relation" in q.lower() and "pending" in q.lower() for q in project.questions)
+
+
+@pytest.mark.asyncio
+async def test_pending_relation_passthrough_does_not_leak_into_entity_ids() -> None:
+    """
+    __pending_ で downgrade した ownerId は Int なので、Entity の
+    relationTargetEntityId は None、apiAction.entityIds にも付かない。
+    (付くと integrity error になる)
+    """
+    from kage_pipeline.integrity import validate_ir_integrity
+    from kage_pipeline.ir_schema import IR, IRSource
+
+    actions = [
+        _api("p.list", "GET", "/api/projects", [{"id": 1, "ownerId": 42}])
+    ]
+    proposals = [
+        EntityProposal(
+            clusterId="cluster_0",
+            name="Project",
+            confidence="medium",
+            fields=[
+                EntityFieldProposal(name="id", type="Int", isId=True),
+                EntityFieldProposal(
+                    name="ownerId",
+                    type="Relation",
+                    relationTargetName="__pending_User__",
+                ),
+            ],
+        )
+    ]
+    client = _FakeClient(proposals)
+    entities, updated = await infer_entities(
+        api_actions=actions,
+        screens=[],
+        has_auth=True,
+        llm_client=client,  # type: ignore[arg-type]
+    )
+
+    # IR を組み立てて integrity を通す(dangling ref が残っていないこと)
+    ir = IR(
+        version="1.0.0",
+        source=IRSource(
+            targetUrl="https://x",
+            recordedAt="2026-04-21T00:00:00Z",
+            durationSeconds=1.0,
+            captureTool="kage-capture",
+        ),
+        projectName="t",
+        entities=entities,
+        apiActions=updated,
+        hasAuth=True,
+    )
+    assert validate_ir_integrity(ir) == []
+
+
+@pytest.mark.asyncio
 async def test_llm_returns_fewer_proposals_than_clusters_is_ok() -> None:
     """LLM が一部クラスタを返し忘れても、entity_inferer は crash しない。"""
     actions = [

@@ -36,9 +36,9 @@ schema, so correctness matters more than ambition.
   - `{{ field_name }}`: {{ types | join(" | ") }}
   {%- endfor %}
 - Sample record:
-  ```json
+  ````json
   {{ cluster.sample_record_json }}
-  ```
+  ````
 
 {% endfor %}
 
@@ -69,10 +69,21 @@ Use the `propose_entities` tool to return results. Each item must correspond by
    sample has a short, plausible-looking value. If unsure, keep `String` and
    ask a question like "`status` の取り得る値は?".
 
-4. **Only create `Relation` if the target Entity also appears in this cluster
-   list.** A `userId: int` field with no `User` cluster → keep as `Int`, do
-   not create a Relation, and record a question asking whether this maps to a
-   `User` table that wasn't recorded.
+4. **Relation handling — three-way choice.**
+   - If the target Entity **appears in this cluster list**, use
+     `type: "Relation"` with `relationTargetName: "<ExactName>"`.
+   - If the target Entity **does NOT appear** but the field name strongly
+     suggests a relation (`xxxId`, `xxx_id`, `xxxRef`, `owner`, `author`,
+     `createdBy`, `assignee`, etc.), return
+     `type: "Relation"` with `relationTargetName: "__pending_<Name>__"`
+     (e.g. `__pending_User__`). This signals "I intended a relation but the
+     target table wasn't observed". Post-processing will automatically
+     downgrade this to the primitive `Int` field. Also add a Japanese
+     question like "`ownerId` は User テーブルへの relation ですか?".
+   - If the field name gives no relation signal (plain `userId`-like but
+     we saw just `int` and no textual hint), keep the field as its
+     observed primitive type (`Int` / `String`). Do **not** use
+     `__pending_*__`.
 
 5. **ID fields**: if you see `id`, `_id`, `<entity>Id` as the primary key,
    mark it `isId: true`. Prefer `String` + `@default(cuid())` shape is handled
@@ -148,7 +159,8 @@ cluster_1:
   sample: {"id": 1, "title": "SLCT", "status": "active", "ownerId": 42, "createdAt": "..."}
 ```
 
-Good output (note: no `User` cluster seen, so `ownerId` stays `Int`):
+Good output (note: no `User` cluster seen, so `ownerId` is marked as a
+`__pending_User__` relation — post-processing will downgrade it to `Int`):
 
 ```json
 {
@@ -158,13 +170,13 @@ Good output (note: no `User` cluster seen, so `ownerId` stays `Int`):
     {"name": "id", "type": "Int", "isId": true, "evidence": []},
     {"name": "title", "type": "String", "evidence": []},
     {"name": "status", "type": "String", "evidence": ["only one value observed"]},
-    {"name": "ownerId", "type": "Int", "evidence": ["no User cluster observed"]},
+    {"name": "ownerId", "type": "Relation", "relationTargetName": "__pending_User__", "evidence": ["naming suggests relation to User"]},
     {"name": "createdAt", "type": "DateTime", "isCreatedAt": true, "evidence": []}
   ],
   "confidence": "medium",
   "questions": [
     "status の取り得る値は?(active 以外に何があるか確認したい)",
-    "ownerId は User テーブルへの relation ですか?User cluster が別途あれば Relation に昇格したい"
+    "ownerId は User テーブルへの relation ですか?User cluster が観測されなかったので保留中"
   ]
 }
 ```

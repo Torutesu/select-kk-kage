@@ -237,21 +237,59 @@ def _resolve_name_conflicts(proposals: list[EntityProposal]) -> dict[str, str]:
     return out
 
 
+_PENDING_PREFIX = "__pending_"
+_PENDING_SUFFIX = "__"
+
+
+def _parse_pending_target(name: str | None) -> str | None:
+    """`__pending_User__` → `User` を取り出す。そうでなければ None。"""
+    if not name:
+        return None
+    if not (name.startswith(_PENDING_PREFIX) and name.endswith(_PENDING_SUFFIX)):
+        return None
+    inner = name[len(_PENDING_PREFIX) : -len(_PENDING_SUFFIX)]
+    return inner or None
+
+
 def _build_entity(
     proposal: EntityProposal,
     final_name: str,
     name_to_entity_id: dict[str, str],
-) -> Entity:
+) -> tuple[Entity, list[str]]:
+    """
+    LLM の EntityProposal を IR Entity に変換する。
+    第 2 戻り値は「後から proposal.questions に auto-append する日本語 question」の list。
+    (Relation pending / target 不在 の downgrade 時に自動的に質問を残す)
+    """
     fields: list[EntityField] = []
+    auto_questions: list[str] = []
+
     for f in proposal.fields:
         ftype: EntityFieldType = f.type
         rel_target: str | None = None
-        # Relation の target 不在なら String にダウングレード
+
         if f.type == "Relation":
-            if f.relationTargetName and f.relationTargetName in name_to_entity_id:
-                rel_target = name_to_entity_id[f.relationTargetName]
+            target_name = f.relationTargetName
+            pending_target = _parse_pending_target(target_name)
+
+            if pending_target:
+                # Q2=A: __pending_<Name>__ は常に Int にダウングレード
+                ftype = "Int"
+                auto_questions.append(
+                    f"`{f.name}` は `{pending_target}` テーブルへの relation ですか?"
+                    f"対応する cluster が観測されなかったので Int に保留中"
+                )
+            elif target_name and target_name in name_to_entity_id:
+                rel_target = name_to_entity_id[target_name]
             else:
+                # target 指定はあるが未知 → 旧動作 (String)
                 ftype = "String"
+                if target_name:
+                    auto_questions.append(
+                        f"`{f.name}` の relation target `{target_name}` が "
+                        f"他 cluster で見つからなかったので String に落としました"
+                    )
+
         fields.append(
             EntityField(
                 name=f.name,
@@ -274,7 +312,7 @@ def _build_entity(
     )
     fields = [f for _, f in ordered]
 
-    return Entity(
+    entity = Entity(
         id=uuid.uuid4(),
         name=final_name,
         fields=fields,
@@ -282,6 +320,7 @@ def _build_entity(
         evidence=[],
         questions=list(proposal.questions),
     )
+    return entity, auto_questions
 
 
 def _postprocess(
@@ -316,9 +355,15 @@ def _postprocess(
     entities: list[Entity] = []
     entity_id_by_cluster: dict[str, str] = {}
     for cluster, p, final_name, entity_id in pre_entities:
-        ent = _build_entity(p, final_name, name_to_entity_id)
-        # _build_entity が新しい UUID を振るので、ここで差し替える
-        ent_with_fixed_id = ent.model_copy(update={"id": uuid.UUID(entity_id)})
+        ent, auto_questions = _build_entity(p, final_name, name_to_entity_id)
+        # _build_entity が新しい UUID を振るので、ここで差し替える。
+        # auto_questions は LLM が書き漏らしても保険として追加。
+        ent_with_fixed_id = ent.model_copy(
+            update={
+                "id": uuid.UUID(entity_id),
+                "questions": ent.questions + auto_questions,
+            }
+        )
         entities.append(ent_with_fixed_id)
         entity_id_by_cluster[cluster.id] = entity_id
 
