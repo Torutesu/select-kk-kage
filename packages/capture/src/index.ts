@@ -33,6 +33,10 @@ program
   .option("--headless", "Run headless (default: false)", false)
   .option("--width <w>", "Viewport width", "1440")
   .option("--height <h>", "Viewport height", "900")
+  .option(
+    "--max-duration <seconds>",
+    "Auto-stop after N seconds (for unattended recording / CI). Default: wait for Ctrl+C",
+  )
   .action(async (opts) => {
     const projectName = opts.name as string;
     if (!/^[a-z0-9-]+$/.test(projectName)) {
@@ -95,12 +99,15 @@ program
       process.exit(1);
     }
 
-    // 可視ブラウザが閉じられたら停止
-    // (context が閉じると page が切れるので、それをポーリングで検知)
-    const interval = setInterval(async () => {
-      // no-op: SIGINT で止める想定。ここは念のため残す。
-    }, 1000);
-    process.on("exit", () => clearInterval(interval));
+    if (opts.maxDuration) {
+      const seconds = parseInt(opts.maxDuration, 10);
+      if (!Number.isFinite(seconds) || seconds <= 0) {
+        console.error(chalk.red("--max-duration must be a positive integer"));
+        process.exit(1);
+      }
+      console.log(chalk.gray(`  auto-stop in ${seconds}s`));
+      setTimeout(stop, seconds * 1000);
+    }
   });
 
 program.parseAsync().catch((err) => {

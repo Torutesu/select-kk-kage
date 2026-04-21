@@ -4,9 +4,6 @@
   "private": true,
   "description": "KAGE - SLCT internal tool: record SaaS, generate Next.js clone",
   "packageManager": "pnpm@9.12.0",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
